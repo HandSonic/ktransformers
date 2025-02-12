@@ -97,7 +97,7 @@ jobs:
           mkdir -p build_artifacts
           docker save local-amd64 -o build_artifacts/amd64.tar
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: amd64-image
           path: build_artifacts/amd64.tar
@@ -186,7 +186,7 @@ jobs:
           docker save local-arm64 -o build_artifacts/arm64.tar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: arm64-image
           path: build_artifacts/arm64.tar
