@@ -53,5 +53,5 @@ jobs:
 #            linux/arm64
 #            linux/arm/v7
           tags: |
-            ${{ env.TAGS }}
+            ${{ steps.set_tags.outputs.tags }}
 
