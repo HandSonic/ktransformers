@@ -1,0 +1,251 @@
+
+name: DockerHub CI1
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '可选: 发布标签 (默认为当前日期)'
+        required: false
+env:
+  DOCKERHUB_REPO: chatteohr/ktransformers
+jobs:
+  build-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Before freeing up disk space
+        run: |
+          echo "Before freeing up disk space"
+          echo "=============================================================================="
+          df -hT
+          echo "=============================================================================="
+      - name: "Optimize Disk Space"
+        uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
+        with:
+          operate_sudo: "True"
+          general_include: ".+"
+          general_exclude: |-
+            ^GCC$
+            ^G\+\+$
+            Clang
+            LLVM
+          docker_include: ".+"
+          docker_prune: "True"
+          docker_clean: "True"
+          apt_prune: "True"
+          apt_clean: "True"
+          homebrew_prune: "True"
+          homebrew_clean: "True"
+          npm_prune: "True"
+          npm_clean: "True"
+          os_swap: "True"
+
+      - name: Freeing up disk space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 1
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'false'
+      - name: Move Docker data directory
+        run: |
+          # 停止 Docker 服务
+          sudo systemctl stop docker
+
+          # 创建新的目录并将已有数据同步到新位置（为了安全，先同步现有数据）
+          sudo mkdir -p $GITHUB_WORKSPACE/docker
+          sudo rsync -avz /var/lib/docker/ $GITHUB_WORKSPACE/docker
+
+          # 备份原目录并做软连接
+          sudo rm -rf /var/lib/docker 
+          sudo ln -s $GITHUB_WORKSPACE/docker /var/lib/docker
+
+          # 重启 Docker
+          sudo systemctl start docker
+
+      - name: Check disk usage after
+        run: df -h
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build local AMD64 image
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --load \
+            -t local-amd64 \
+            .
+
+      - name: Free up disk space complete
+        run: |
+          echo "Free up disk space complete"
+          echo "=============================================================================="
+          df -hT
+          echo "=============================================================================="
+      - name: Save as tar
+        run: |
+          mkdir -p build_artifacts
+          docker save local-amd64 -o build_artifacts/amd64.tar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: amd64-image
+          path: build_artifacts/amd64.tar
+  build-arm64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Before freeing up disk space
+        run: |
+          echo "Before freeing up disk space"
+          echo "=============================================================================="
+          df -hT
+          echo "=============================================================================="
+      - name: "Optimize Disk Space"
+        uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
+        with:
+          operate_sudo: "True"
+          general_include: ".+"
+          general_exclude: |-
+            ^GCC$
+            ^G\+\+$
+            Clang
+            LLVM
+          docker_include: ".+"
+          docker_prune: "True"
+          docker_clean: "True"
+          apt_prune: "True"
+          apt_clean: "True"
+          homebrew_prune: "True"
+          homebrew_clean: "True"
+          npm_prune: "True"
+          npm_clean: "True"
+          os_swap: "True"
+
+      - name: Freeing up disk space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 1
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'false'
+      - name: Move Docker data directory
+        run: |
+          # 停止 Docker 服务
+          sudo systemctl stop docker
+
+          # 创建新的目录并将已有数据同步到新位置（为了安全，先同步现有数据）
+          sudo mkdir -p $GITHUB_WORKSPACE/docker
+          sudo rsync -avz /var/lib/docker/ $GITHUB_WORKSPACE/docker
+
+          # 备份原目录并做软连接
+          sudo rm -rf /var/lib/docker 
+          sudo ln -s $GITHUB_WORKSPACE/docker /var/lib/docker
+
+          # 重启 Docker
+          sudo systemctl start docker
+
+      - name: Check disk usage after
+        run: df -h
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build local ARM64 image
+        run: |
+          docker buildx build \
+            --platform linux/arm64 \
+            --load \
+            -t local-arm64 \
+
+      - name: Free up disk space complete
+        run: |
+          echo "Free up disk space complete"
+          echo "=============================================================================="
+          df -hT
+          echo "=============================================================================="
+      - name: Save as tar
+        run: |
+          mkdir -p build_artifacts
+          docker save local-arm64 -o build_artifacts/arm64.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: arm64-image
+          path: build_artifacts/arm64.tar
+  #------------------------------------------------
+  # 3. Merge and Push
+  #    (Only runs after both build-amd64 & build-arm64 finish)
+  #------------------------------------------------
+  merge-manifest:
+    runs-on: ubuntu-latest
+    needs: [ build-amd64, build-arm64 ]
+
+    steps:
+      - name: Download amd64 image
+        uses: actions/download-artifact@v3
+        with:
+          name: amd64-image
+
+      - name: Download arm64 image
+        uses: actions/download-artifact@v3
+        with:
+          name: arm64-image
+
+      - name: Load images into Docker
+        run: |
+          docker load -i amd64.tar
+          docker load -i arm64.tar
+          # 现在本地 Docker Daemon 里有2个镜像: local-amd64, local-arm64
+
+      - name: Check Docker version
+        run: docker --version
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 方案A: 使用 Docker 23+ 新特性“一次性推送”
+      #------------------------------------------------
+      - name: Push single multi-arch image (Docker 23+)
+        if: always()
+        run: |
+          # 1) 创建本地 manifest
+          docker manifest create local-latest local-amd64 local-arm64
+          docker manifest annotate local-latest local-amd64 --arch amd64
+          docker manifest annotate local-latest local-arm64 --arch arm64
+          
+          # 2) 一次性推送到远端
+          docker manifest push local-latest ${{ env.DOCKERHUB_REPO }}:latest
+
+      # 方案B: 传统 docker manifest push
+      # 如果你的 Docker 版本 < 23 或想显式生成 remote manifest
+      #------------------------------------------------
+      # - name: Create & push multi-arch manifest (traditional)
+      #   run: |
+      #     docker manifest create docker.io/username/repo:latest \
+      #       local-amd64 \
+      #       local-arm64
+      #     docker manifest annotate docker.io/username/repo:latest local-amd64 --arch amd64
+      #     docker manifest annotate docker.io/username/repo:latest local-arm64 --arch arm64
+      #     docker manifest push docker.io/username/repo:latest
