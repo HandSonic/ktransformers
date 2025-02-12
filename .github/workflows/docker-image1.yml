@@ -15,55 +15,55 @@ jobs:
   build-amd64:
     runs-on: ubuntu-latest
     steps:
-      - name: Before freeing up disk space
-        run: |
-          echo "Before freeing up disk space"
-          echo "=============================================================================="
-          df -hT
-          echo "=============================================================================="
-      - name: "Optimize Disk Space"
-        uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
-        with:
-          operate_sudo: "True"
-          general_include: ".+"
-          general_exclude: |-
-            ^GCC$
-            ^G\+\+$
-            Clang
-            LLVM
-          docker_include: ".+"
-          docker_prune: "True"
-          docker_clean: "True"
-          apt_prune: "True"
-          apt_clean: "True"
-          homebrew_prune: "True"
-          homebrew_clean: "True"
-          npm_prune: "True"
-          npm_clean: "True"
-          os_swap: "True"
-
-      - name: Freeing up disk space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 2048
-          swap-size-mb: 1
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'false'
+#      - name: Before freeing up disk space
+#        run: |
+#          echo "Before freeing up disk space"
+#          echo "=============================================================================="
+#          df -hT
+#          echo "=============================================================================="
+#      - name: "Optimize Disk Space"
+#        uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
+#        with:
+#          operate_sudo: "True"
+#          general_include: ".+"
+#          general_exclude: |-
+#            ^GCC$
+#            ^G\+\+$
+#            Clang
+#            LLVM
+#          docker_include: ".+"
+#          docker_prune: "True"
+#          docker_clean: "True"
+#          apt_prune: "True"
+#          apt_clean: "True"
+#          homebrew_prune: "True"
+#          homebrew_clean: "True"
+#          npm_prune: "True"
+#          npm_clean: "True"
+#          os_swap: "True"
+#
+#      - name: Freeing up disk space
+#        uses: easimon/maximize-build-space@master
+#        with:
+#          root-reserve-mb: 2048
+#          swap-size-mb: 1
+#          remove-dotnet: 'true'
+#          remove-android: 'true'
+#          remove-haskell: 'true'
+#          remove-codeql: 'true'
+#          remove-docker-images: 'false'
       - name: Move Docker data directory
         run: |
           # 停止 Docker 服务
           sudo systemctl stop docker
 
           # 创建新的目录并将已有数据同步到新位置（为了安全，先同步现有数据）
-          sudo mkdir -p $GITHUB_WORKSPACE/docker
-          sudo rsync -avz /var/lib/docker/ $GITHUB_WORKSPACE/docker
+          sudo mkdir -p /mnt/docker
+          sudo rsync -avz /var/lib/docker/ /mnt/docker
 
           # 备份原目录并做软连接
           sudo rm -rf /var/lib/docker 
-          sudo ln -s $GITHUB_WORKSPACE/docker /var/lib/docker
+          sudo ln -s /mnt/docker /var/lib/docker
 
           # 重启 Docker
           sudo systemctl start docker
@@ -77,7 +77,8 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+      - name: Check out code
+        uses: actions/checkout@v3
       - name: Build local AMD64 image
         run: |
           docker buildx build \
@@ -104,55 +105,55 @@ jobs:
   build-arm64:
     runs-on: ubuntu-latest
     steps:
-      - name: Before freeing up disk space
-        run: |
-          echo "Before freeing up disk space"
-          echo "=============================================================================="
-          df -hT
-          echo "=============================================================================="
-      - name: "Optimize Disk Space"
-        uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
-        with:
-          operate_sudo: "True"
-          general_include: ".+"
-          general_exclude: |-
-            ^GCC$
-            ^G\+\+$
-            Clang
-            LLVM
-          docker_include: ".+"
-          docker_prune: "True"
-          docker_clean: "True"
-          apt_prune: "True"
-          apt_clean: "True"
-          homebrew_prune: "True"
-          homebrew_clean: "True"
-          npm_prune: "True"
-          npm_clean: "True"
-          os_swap: "True"
-
-      - name: Freeing up disk space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 2048
-          swap-size-mb: 1
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'false'
+#      - name: Before freeing up disk space
+#        run: |
+#          echo "Before freeing up disk space"
+#          echo "=============================================================================="
+#          df -hT
+#          echo "=============================================================================="
+#      - name: "Optimize Disk Space"
+#        uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
+#        with:
+#          operate_sudo: "True"
+#          general_include: ".+"
+#          general_exclude: |-
+#            ^GCC$
+#            ^G\+\+$
+#            Clang
+#            LLVM
+#          docker_include: ".+"
+#          docker_prune: "True"
+#          docker_clean: "True"
+#          apt_prune: "True"
+#          apt_clean: "True"
+#          homebrew_prune: "True"
+#          homebrew_clean: "True"
+#          npm_prune: "True"
+#          npm_clean: "True"
+#          os_swap: "True"
+#
+#      - name: Freeing up disk space
+#        uses: easimon/maximize-build-space@master
+#        with:
+#          root-reserve-mb: 2048
+#          swap-size-mb: 1
+#          remove-dotnet: 'true'
+#          remove-android: 'true'
+#          remove-haskell: 'true'
+#          remove-codeql: 'true'
+#          remove-docker-images: 'false'
       - name: Move Docker data directory
         run: |
           # 停止 Docker 服务
           sudo systemctl stop docker
 
           # 创建新的目录并将已有数据同步到新位置（为了安全，先同步现有数据）
-          sudo mkdir -p $GITHUB_WORKSPACE/docker
-          sudo rsync -avz /var/lib/docker/ $GITHUB_WORKSPACE/docker
+          sudo mkdir -p /mnt/docker
+          sudo rsync -avz /var/lib/docker/ /mnt/docker
 
           # 备份原目录并做软连接
           sudo rm -rf /var/lib/docker 
-          sudo ln -s $GITHUB_WORKSPACE/docker /var/lib/docker
+          sudo ln -s /mnt/docker /var/lib/docker
 
           # 重启 Docker
           sudo systemctl start docker
@@ -166,13 +167,15 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+      - name: Check out code
+        uses: actions/checkout@v3
       - name: Build local ARM64 image
         run: |
           docker buildx build \
             --platform linux/arm64 \
             --load \
             -t local-arm64 \
+            .
 
       - name: Free up disk space complete
         run: |
