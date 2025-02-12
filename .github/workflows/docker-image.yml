@@ -15,6 +15,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Check disk usage before
+        run: df -h
+      - name: Move Docker data directory to /mnt
+        run: |
+          # 停止 Docker 服务
+          sudo systemctl stop docker
+
+          # 创建新的目录并将已有数据同步到新位置（为了安全，先同步现有数据）
+          sudo mkdir -p /mnt/docker
+          sudo rsync -avz /var/lib/docker/ /mnt/docker
+
+          # 备份原目录并做软连接
+          sudo mv /var/lib/docker /var/lib/docker.bak
+          sudo ln -s /mnt/docker /var/lib/docker
+
+          # 重启 Docker
+          sudo systemctl start docker
+
+      - name: Check disk usage after
+        run: df -h
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
