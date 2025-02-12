@@ -8,8 +8,7 @@ on:
     inputs:
       tag:
         description: '可选: 发布标签 (默认为当前日期)'
-        required: true
-        default: 'amd64'
+        required: false
 env:
   DOCKERHUB_REPO: chatteohr/ktransformers
 jobs:
@@ -36,9 +35,13 @@ jobs:
         id: set_tags
         run: |
           if [ -z "${{ github.event.inputs.tag }}" ]; then
-          echo "TAGS=${{ env.DOCKERHUB_REPO }}:latest" >> $GITHUB_ENV
+          echo "tags=${{ env.DOCKERHUB_REPO }}:latest" >> $GITHUB_OUTPUT
           else
-          echo "TAGS=${{ env.DOCKERHUB_REPO }}:latest ${{ env.DOCKERHUB_REPO }}:${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+          # 使用 here-doc 方式输出多行内容到输出变量
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ env.DOCKERHUB_REPO }}:latest" >> $GITHUB_OUTPUT
+          echo "${{ env.DOCKERHUB_REPO }}:${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           fi
       -
         name: Build and push
