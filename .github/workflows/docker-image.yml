@@ -52,13 +52,7 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'false'
-      - name: Free up disk space complete
-        run: |
-          echo "Free up disk space complete"
-          echo "=============================================================================="
-          df -hT
-          echo "=============================================================================="
-      - name: Move Docker data directory to /mnt
+      - name: Move Docker data directory
         run: |
           # 停止 Docker 服务
           sudo systemctl stop docker
@@ -116,3 +110,9 @@ jobs:
           tags: |
             ${{ steps.set_tags.outputs.tags }}
 
+      - name: Free up disk space complete
+        run: |
+          echo "Free up disk space complete"
+          echo "=============================================================================="
+          df -hT
+          echo "=============================================================================="
