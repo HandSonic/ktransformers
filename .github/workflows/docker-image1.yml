@@ -240,12 +240,12 @@ jobs:
       - name: Push single multi-arch image (Docker 23+)
         if: always()
         run: |
-          # 1) 创建本地 manifest
+
           docker manifest create local-latest local-amd64 local-arm64
           docker manifest annotate local-latest local-amd64 --arch amd64
           docker manifest annotate local-latest local-arm64 --arch arm64
           
-          # 2) 一次性推送到远端
+
           docker manifest push local-latest ${{ env.DOCKERHUB_REPO }}:latest
 
       # 方案B: 传统 docker manifest push
