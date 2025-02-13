@@ -204,6 +204,10 @@ jobs:
     needs: [ build-amd64, build-arm64 ]
 
     steps:
+      - name: qx
+        run: |
+          chmod 777 /mnt
+
       - name: Download amd64 image
         uses: actions/download-artifact@v4
         with:
