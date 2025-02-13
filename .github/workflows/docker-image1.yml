@@ -259,5 +259,5 @@ jobs:
            docker manifest create chatteohr/ktransformers:latest \
              local-amd64:latest \
              local-arm64:latest
-           docker manifest annotate  chatteohr/ktransformers:latest local-amd64 --arch amd64
-           docker manifest annotate  chatteohr/ktransformers:latest local-arm64 --arch arm64
+           docker manifest annotate  chatteohr/ktransformers:latest local-amd64:latest --arch amd64
+           docker manifest annotate  chatteohr/ktransformers:latest local-arm64:latest --arch arm64
