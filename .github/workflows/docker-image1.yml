@@ -257,7 +257,7 @@ jobs:
       - name: Create & push multi-arch manifest (traditional)
         run: |
            docker manifest create chatteohr/ktransformers:latest \
-             local-amd64 \
-             local-arm64
+             local-amd64:latest \
+             local-arm64:latest
            docker manifest annotate  chatteohr/ktransformers:latest local-amd64 --arch amd64
            docker manifest annotate  chatteohr/ktransformers:latest local-arm64 --arch arm64
