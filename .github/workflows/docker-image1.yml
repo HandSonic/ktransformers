@@ -212,18 +212,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: amd64-image
-          path: /mnt/amd64.tar
+          path: /mnt/image
 
       - name: Download arm64 image
         uses: actions/download-artifact@v4
         with:
           name: arm64-image
-          path: /mnt/arm64.tar
+          path: /mnt/image
 
       - name: Load images into Docker
         run: |
-          docker load -i /mnt/amd64.tar
-          docker load -i /mnt/arm64.tar
+          docker load -i /mnt/image/amd64.tar
+          docker load -i /mnt/image/arm64.tar
           # 现在本地 Docker Daemon 里有2个镜像: local-amd64, local-arm64
 
       - name: Check Docker version
