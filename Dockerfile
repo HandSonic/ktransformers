@@ -34,4 +34,4 @@ CPU_INSTRUCT=NATIVE  KTRANSFORMERS_FORCE_BUILD=TRUE TORCH_CUDA_ARCH_LIST="8.0;8.
 pip cache purge
 EOF
 
-ENTRYPOINT [ "/opt/conda/bin/ktransformers" ]
+#ENTRYPOINT [ "/opt/conda/bin/ktransformers" ]
