@@ -251,6 +251,9 @@ jobs:
       # 方案B: 传统 docker manifest push
       # 如果你的 Docker 版本 < 23 或想显式生成 remote manifest
       #------------------------------------------------
+      - name: 111
+        run: |
+          docker images
       - name: Create & push multi-arch manifest (traditional)
         run: |
            docker manifest create chatteohr/ktransformers:latest \
