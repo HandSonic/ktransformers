@@ -22,6 +22,7 @@ apt update -y &&  apt install -y  --no-install-recommends \
     vim \
     gcc \
     g++ \
+    libstdc++6 \
     cmake &&
 rm -rf /var/lib/apt/lists/* &&
 cd ktransformers &&
