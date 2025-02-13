@@ -206,7 +206,7 @@ jobs:
     steps:
       - name: qx
         run: |
-          chmod 777 /mnt
+          sudo chmod 777 /mnt
 
       - name: Download amd64 image
         uses: actions/download-artifact@v4
