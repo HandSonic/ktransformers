@@ -208,13 +208,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: amd64-image
-          path: /mnt
+          path: /mnt/amd64.tar
 
       - name: Download arm64 image
         uses: actions/download-artifact@v4
         with:
           name: arm64-image
-          path: /mnt
+          path: /mnt/arm64.tar
 
       - name: Load images into Docker
         run: |
