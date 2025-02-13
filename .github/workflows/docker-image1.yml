@@ -102,6 +102,7 @@ jobs:
         with:
           name: amd64-image
           path: build_artifacts/amd64.tar
+          compression-level: 0
   build-arm64:
     runs-on: ubuntu-latest
     steps:
@@ -193,6 +194,7 @@ jobs:
         with:
           name: arm64-image
           path: build_artifacts/arm64.tar
+          compression-level: 0
   #------------------------------------------------
   # 3. Merge and Push
   #    (Only runs after both build-amd64 & build-arm64 finish)
@@ -206,16 +208,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: amd64-image
+          path: /mnt
 
       - name: Download arm64 image
         uses: actions/download-artifact@v4
         with:
           name: arm64-image
+          path: /mnt
 
       - name: Load images into Docker
         run: |
-          docker load -i amd64.tar
-          docker load -i arm64.tar
+          docker load -i /mnt/amd64.tar
+          docker load -i /mnt/arm64.tar
           # 现在本地 Docker Daemon 里有2个镜像: local-amd64, local-arm64
 
       - name: Check Docker version
