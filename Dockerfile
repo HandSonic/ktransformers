@@ -32,5 +32,5 @@ pip install flash-attn &&
 CPU_INSTRUCT=NATIVE  KTRANSFORMERS_FORCE_BUILD=TRUE TORCH_CUDA_ARCH_LIST="8.0;8.6;8.7;8.9;9.0+PTX" pip install . --no-build-isolation --verbose &&
 pip cache purge
 EOF
-
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /opt/conda/lib/python3.10/site-packages/torch/lib/../../../.././libstdc++.so.6#ENTRYPOINT [ "/opt/conda/bin/ktransformers" ]
 #ENTRYPOINT [ "/opt/conda/bin/ktransformers" ]
