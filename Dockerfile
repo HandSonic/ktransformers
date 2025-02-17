@@ -10,7 +10,7 @@ EOF
 
 
 
-FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-devel as compile_server
+FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-devel as compile_server
 WORKDIR /workspace
 ENV CUDA_HOME /usr/local/cuda
 COPY --from=web_compile /home/ktransformers /workspace/ktransformers
