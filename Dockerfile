@@ -1,7 +1,7 @@
 FROM node:20.16.0 as web_compile
 WORKDIR /home
+COPY . /home/ktransformers
 RUN <<EOF
-git clone https://github.com/kvcache-ai/ktransformers.git &&
 cd ktransformers/ktransformers/website/ &&
 npm install @vue/cli &&
 npm run build &&
