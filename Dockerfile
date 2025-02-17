@@ -23,13 +23,8 @@ apt update -y &&  apt install -y  --no-install-recommends \
     g++ \
     cmake && 
 rm -rf /var/lib/apt/lists/* &&
-cd ktransformers &&
-git submodule init &&
-git submodule update &&
-pip install ninja pyproject numpy cpufeature &&
-pip install flash-attn &&
-CPU_INSTRUCT=NATIVE  KTRANSFORMERS_FORCE_BUILD=TRUE TORCH_CUDA_ARCH_LIST="8.0;8.6;8.7;8.9;9.0+PTX" pip install . --no-build-isolation --verbose &&
-pip cache purge
+wget https://github.com/kvcache-ai/ktransformers/releases/download/v0.1.4/ktransformers-0.3.0rc0+cu126torch26fancy-cp311-cp311-linux_x86_64.whl &&
+pip install ./ktransformers-0.3.0rc0+cu126torch26fancy-cp311-cp311-linux_x86_64.whl
 EOF
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
